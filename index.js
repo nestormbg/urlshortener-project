@@ -27,6 +27,8 @@ app.get('/', function(req, res) {
 app.post('/api/shorturl', (req, res) => {
   const url = req.body.url;
   const dnsLookUp = dns.lookup(urlParser.parse(url).hostname, async (err, address) => {
+    if (err) return console.log(err);
+
     if (!address) {
       res.json({ error: 'invalid url' });
     } else {
@@ -44,6 +46,12 @@ app.post('/api/shorturl', (req, res) => {
       });
     }
   });
+});
+
+app.get('/api/shorturl/:shorturl', async (req, res) => {
+  const shortUrl = req.params.shorturl;
+  const urlDoc = await urls.findOne({ short_url: shortUrl });
+  res.redirect(urlDoc.url);
 });
 
 app.listen(port, function() {
